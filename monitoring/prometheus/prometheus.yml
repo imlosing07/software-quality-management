@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'api' # Nombre del job
+    # Prometheus necesita saber cómo encontrar tu API.
+    # 'api:3000' funciona porque están en la misma red de Docker 'quality_network'
+    static_configs:
+      - targets: ['api:3000'] 
+    metrics_path: '/metrics' # Asumiendo que expones métricas en /metrics
+
+  # (Tu PDF también mencionaba exporters de postgres y redis, [cite: 1022])
+  # ...puedes añadirlos después

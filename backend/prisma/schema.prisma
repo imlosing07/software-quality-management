@@ -1,0 +1,69 @@
+// Este es tu datasource, asegúrate que la URL
+// venga de una variable de entorno (Prisma lo hace por default)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tu esquema de tablas, traducido a Prisma
+// [cite: 770-779]
+model Project {
+  id            Int            @id @default(autoincrement())
+  name          String         @db.VarChar(255)
+  description   String?
+  repository_url String?        @db.VarChar(500)
+  created_at    DateTime?      @default(now())
+  updated_at    DateTime?      @updatedAt
+  test_cases    TestCase[]
+  metrics       Metric[]
+  code_analysis CodeAnalysis[]
+  reports       Report[]
+}
+
+// [cite: 788-798]
+model TestCase {
+  id          Int       @id @default(autoincrement())
+  project_id  Int
+  name        String    @db.VarChar(255)
+  description String?
+  complexity  String?   @db.VarChar(50) // Podrías usar un Enum aquí
+  status      String?   @db.VarChar(50)
+  created_at  DateTime? @default(now())
+  project     Project   @relation(fields: [project_id], references: [id])
+}
+
+// [cite: 808-815]
+model Metric {
+  id            Int       @id @default(autoincrement())
+  project_id    Int
+  metric_name   String?   @db.VarChar(100)
+  metric_value  Decimal?  @db.Decimal(10, 2)
+  timestamp     DateTime? @default(now())
+  project       Project   @relation(fields: [project_id], references: [id])
+}
+
+// [cite: 825-834]
+model CodeAnalysis {
+  id                  Int       @id @default(autoincrement())
+  project_id          Int
+  issues_count        Int?
+  code_smells         Int?
+  vulnerabilities     Int?
+  coverage_percentage Decimal?  @db.Decimal(5, 2)
+  analyzed_at         DateTime? @default(now())
+  project             Project   @relation(fields: [project_id], references: [id])
+}
+
+// [cite: 835]
+model Report {
+  id           Int       @id @default(autoincrement())
+  project_id   Int
+  report_type  String?   @db.VarChar(100)
+  file_path    String?   @db.VarChar(500)
+  generated_at DateTime? @default(now())
+  project      Project   @relation(fields: [project_id], references: [id])
+}
